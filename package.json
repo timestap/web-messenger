@@ -1,0 +1,26 @@
+{
+  "name": "web-messenger",
+  "version": "1.0.0",
+  "description": "Simple web messenger",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/timestap/web-messenger.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/timestap/web-messenger/issues"
+  },
+  "homepage": "https://github.com/timestap/web-messenger#readme",
+  "dependencies": {
+    "express": "^4.14.0",
+    "pug": "^2.0.0-beta4",
+    "socket.io": "^1.4.8",
+    "sqlite3": "^3.1.4",
+    "unix-timestamp": "^0.2.0"
+  }
+}
