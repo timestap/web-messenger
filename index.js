@@ -1,8 +1,20 @@
+var express = require('express');
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var fs = require("fs");
 var timestamp = require ("unix-timestamp");
+var jade = require('jade');
+var bodyParser = require('body-parser');
+var json = require('express-json');
+
+app.use( bodyParser.json() );       // to support JSON-encoded bodies
+app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+	extended: true
+})); 
+
+//jade template for login page
+var html_login = jade.renderFile('login.jade', {});
 
 //Setting up the database
 
@@ -25,8 +37,25 @@ db.serialize(function() {
 var admin = "administrator";
 
 app.get('/', function(req, res){
+  res.send(html_login);
+});
+
+app.post('/', function(req, res) {
+    var username = req.body.username;
+    res.cookie('username', username, { httpOnly: false });
+    res.redirect('/chatroom');
+});
+
+//login page
+app.get('/chatroom', function(req, res){
   res.sendFile(__dirname + '/main.html');
 });
+
+//serving css files
+app.get('/css/chat.css', function(req, res){
+  res.sendFile(__dirname + '/css/chat.css');
+});
+
 
 io.on('connection', function(socket){
 	console.log('a user connected');
@@ -36,27 +65,27 @@ io.on('connection', function(socket){
 
 	socket.on('chat message', function(msg){
      io.emit('chat message', msg);
-
+     console.log(msg)
      //Now we write to database 
      var time = timestamp.now();
 
-    db.serialize(function() {
-		var stmt = db.prepare("INSERT INTO messagetable VALUES (?, ?, ?)");
-		     stmt.run( msg, admin, time);
+  //   db.serialize(function() {
+		// var stmt = db.prepare("INSERT INTO messagetable VALUES (?, ?, ?)");
+		//      stmt.run( msg, admin, time);
 
-	     //query 
-	     stmt.finalize();
-	     db.each("SELECT msg FROM messagetable", function(err, res) {
-	     	if (!err){
-	     		console.log(res.msg);
-	     	}
-	     	else{
-	     		console.log(err);
-	     	}
-	  	});
+	 //     //query 
+	 //     stmt.finalize();
+	 //     db.each("SELECT msg FROM messagetable", function(err, res) {
+	 //     	if (!err){
+	 //     		console.log(res.msg);
+	 //     	}
+	 //     	else{
+	 //     		console.log(err);
+	 //     	}
+	 //  	});
 
 
-    });
+  //   });
      
 
   });
