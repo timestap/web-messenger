@@ -13,24 +13,39 @@
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.1.0.min.js"   integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s="   crossorigin="anonymous"></script>
-<script>
-  var socket = io();
-   $('form').submit(function(){
-  
+    <script>
+      var socket = io();
+        function split_cookie(cookie_string){
+          str = cookie_string.split('; ');
+          var result = {};
+          for (var i = 0; i < str.length; i++) {
+            var cur = str[i].split('=');
+            result[cur[0]] = cur[1];
+          }
+          return result;
+        }
 
-    socket.emit('chat message', $('#m').val());
-    $('#m').val('');
-    return false;
-  });
+      $('form').submit(function(){
+        cookie_obj = split_cookie(document.cookie);
+        socket.emit('chat message', {msg_contents: $('#m').val(), username: cookie_obj.username});
+        $('#m').val('');
+        return false;
+      });
+        
+        var i = 0;
 
-  socket.on('chat message', function(msg){
-    $('#messages').append($('<li class="each_message">').text(msg));
+      socket.on('chat message', function(msg_object){
+        $('#messages').append($('<li class="each_message">').append($('<div id=' + i + '>')));
+        $('#' + i).append($('<div class="msg_username">').text(msg_object.username));
+        $('#' + i).append($('<div class="timestamp">').text(msg_object.cur_time));
+        $('#' + i).append($('<div class="msg_content">').text(msg_object.message_contents));
+        i = i + 1;
 
-    //Scroll on new data
-    var currentinfoDiv =  $('#messages');
-    currentinfoDiv.scrollTop(currentinfoDiv.prop('scrollHeight'));
-  });
+        //Scroll on new data
+        var currentinfoDiv =  $('#messages');
+        currentinfoDiv.scrollTop(currentinfoDiv.prop('scrollHeight'));
+      });
 
-</script>
+    </script>
   </body>
 </html>

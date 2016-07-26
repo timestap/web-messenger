@@ -43,22 +43,38 @@ form button {
 	height: 85%;
 }
 
-#messages li{ 
-	padding-top: 30px;
+#messages li { 
+	padding-top: 10px;
 	padding-right: 10px;
-	padding-bottom: 5px; ;
+	padding-bottom: 15px; ;
 	padding-left: 10px; 
 	bottom: 0;
+	overflow: hidden;
+	font-family: 'Century Gothic', sans-serif;
 
 }
 
-#messages li:nth-child(odd) { 
+.msg_content{
+	padding-top: 10px; 
+	position: relative;
+	clear: both;
+}
+
+.msg_username{
+	position: relative;
+	float: left;
+	font-size: 150%;
+}
+
+.timestamp{
+	position: relative;
+	float: right;
+}
+
+#messages li:nth-child(odd) {  
 	background: #CCDBE0; 
 }
 
 #messages li:nth-child(even) { 
 	background: #eee; 
-}
-
-#each_message {  
 }
