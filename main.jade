@@ -4,8 +4,14 @@ html
     title Socket.IO chat
     link(rel='stylesheet', type='text/css', href='/css/chat.css', media='screen')
   body
-    #message_window
+    div.top_bar
+      div.usernameinfo
+        p#userinfo Signed in as: 
+      button.button(onclick="window.location='localhost:3000'")
+        span Sign Out 
+    div#message_window
       ul#messages
+    div#sendmsg
       form(action='')
         input#m(autocomplete='off')
         button Send
@@ -14,6 +20,20 @@ html
     script.
       var socket = io();
       var i = 0;
+
+      //Username 
+      var cookie_obj = split_cookie(document.cookie);
+      var my_username = cookie_obj.username;
+      $("#userinfo").text("Signed in as: " + my_username);
+
+
+      $('#button').click(function(){
+      console.log("Logging out");
+      //clear cookie
+      document.cookie = 'username=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+      window.location.href = "/";
+      return false;
+      });
 
       function add_msg(cur_object){
       $('#messages').append($('<li class="each_message">').append($('<div id=' + i + '>')));
@@ -49,7 +69,7 @@ html
 
       $('form').submit(function(){
       cookie_obj = split_cookie(document.cookie);
-      socket.emit('chat message', {msg_contents: $('#m').val(), username: cookie_obj.username});
+      socket.emit('chat message', {msg_contents: $('#m').val(), username: my_username});
       $('#m').val('');
       return false;
       });
