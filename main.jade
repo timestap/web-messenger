@@ -7,7 +7,7 @@ html
     div.top_bar
       div.usernameinfo
         p#userinfo Signed in as: 
-      button.button(onclick="window.location='localhost:3000'")
+      button.button(onclick="document.location.href='/'")
         span Sign Out 
     div#message_window
       ul#messages
@@ -25,15 +25,6 @@ html
       var cookie_obj = split_cookie(document.cookie);
       var my_username = cookie_obj.username;
       $("#userinfo").text("Signed in as: " + my_username);
-
-
-      $('#button').click(function(){
-      console.log("Logging out");
-      //clear cookie
-      document.cookie = 'username=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-      window.location.href = "/";
-      return false;
-      });
 
       function add_msg(cur_object){
       $('#messages').append($('<li class="each_message">').append($('<div id=' + i + '>')));
