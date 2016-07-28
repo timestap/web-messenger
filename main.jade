@@ -1,0 +1,58 @@
+doctype html
+html
+  head
+    title Socket.IO chat
+    link(rel='stylesheet', type='text/css', href='/css/chat.css', media='screen')
+  body
+    #message_window
+      ul#messages
+      form(action='')
+        input#m(autocomplete='off')
+        button Send
+    script(src='/socket.io/socket.io.js')
+    script(src='https://code.jquery.com/jquery-3.1.0.min.js', integrity='sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s=', crossorigin='anonymous')
+    script.
+      var socket = io();
+      var i = 0;
+
+      function add_msg(cur_object){
+      $('#messages').append($('<li class="each_message">').append($('<div id=' + i + '>')));
+      $('#' + i).append($('<div class="msg_username">').text(cur_object.username));
+      $('#' + i).append($('<div class="timestamp">').text(cur_object.time));
+      $('#' + i).append($('<div class="msg_content">').text(cur_object.msg_contents));
+      i = i + 1;
+      //Scroll on new data
+      var currentinfoDiv =  $('#messages');
+      currentinfoDiv.scrollTop(currentinfoDiv.prop('scrollHeight'));
+      }
+
+      //populate items in jade
+      socket.emit('query db', {});
+      socket.on('db items', function(res){
+      var items = res.db_items;
+      var items_length = items.length;
+      for (var item = 0; item < items_length; item++){
+      console.log(items[item]);
+      add_msg(items[item]);
+      }
+      });
+
+      function split_cookie(cookie_string){
+      str = cookie_string.split('; ');
+      var result = {};
+      for (var i = 0; i < str.length; i++) {
+      var cur = str[i].split('=');
+      result[cur[0]] = cur[1];
+      }
+      return result;
+      }
+
+      $('form').submit(function(){
+      cookie_obj = split_cookie(document.cookie);
+      socket.emit('chat message', {msg_contents: $('#m').val(), username: cookie_obj.username});
+      $('#m').val('');
+      return false;
+      });
+      socket.on('chat message', function(msg_object){
+      add_msg(msg_object)
+      });

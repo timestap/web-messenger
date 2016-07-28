@@ -9,6 +9,8 @@ var bodyParser = require('body-parser');
 var json = require('express-json');
 var moment = require('moment');
 
+var CLEAR_DATA = false;
+
 app.use( bodyParser.json() );       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 	extended: true
@@ -16,6 +18,7 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 
 //jade template for login page
 var html_login = jade.renderFile('login.jade', {});
+var html_chat = jade.renderFile('main.jade', {}); //should use templating but its such a hassle
 
 //Setting up the database
 
@@ -30,8 +33,13 @@ var db = new sqlite3.Database(file);
 //Create table 
 db.serialize(function() {
 	if(!exists) {
-	db.run("CREATE TABLE messagetable (msg TEXT, username TEXT, time INT)"); 
+		db.run("CREATE TABLE messagetable (msg_contents TEXT, username TEXT, time TEXT)"); 
 	}
+
+	if (CLEAR_DATA){
+		db.run("DELETE FROM messagetable");
+	}
+
 });
 
 //test username
@@ -49,7 +57,7 @@ app.post('/', function(req, res) {
 
 //login page
 app.get('/chatroom', function(req, res){
-	res.sendFile(__dirname + '/main.html');
+	res.send(html_chat);
 });
 
 //serving css files
@@ -60,39 +68,44 @@ app.get('/css/chat.css', function(req, res){
 
 io.on('connection', function(socket){
 	console.log('a user connected');
+
 	socket.on('disconnect', function(){
 		console.log('user disconnected');
 	});
 
+	socket.on('query db', function(data){
+		console.log("Querying db...");
+
+		//get archived database messages
+		db.serialize(function() {
+	     db.all("SELECT * FROM messagetable", function(err, res) {
+		     	if (!err){
+		     		console.log("Current DB contents");
+		     		socket.emit('db items', {db_items: res});
+		     	}
+		     	else{
+		     		console.log(err);
+		     	}
+		  	});
+	  	});
+	});
+
 	socket.on('chat message', function(msg_obj){
-		console.log(msg_obj);
+		//console.log(msg_obj);
 
-	 //Now we write to database 
-	 var time = timestamp.now();
-	 var time_moment = moment().format('MMMM Do YYYY, h:mm:ss a');
-	 console.log(time_moment);
-	 io.emit('chat message', {message_contents: msg_obj.msg_contents, 
-	 	username: msg_obj.username, 
-	 	cur_time: time_moment
-	 });
+		//Now we write to database 
+		//var time = timestamp.now();
+		var time_moment = moment().format('MMMM Do YYYY, h:mm a');
+		io.emit('chat message', {msg_contents: msg_obj.msg_contents, 
+		 	username: msg_obj.username, 
+		 	time: time_moment
+		});
 
-	//   db.serialize(function() {
-		// var stmt = db.prepare("INSERT INTO messagetable VALUES (?, ?, ?)");
-		//      stmt.run( msg, admin, time);
-
-	 //     //query 
-	 //     stmt.finalize();
-	 //     db.each("SELECT msg FROM messagetable", function(err, res) {
-	 //     	if (!err){
-	 //     		console.log(res.msg);
-	 //     	}
-	 //     	else{
-	 //     		console.log(err);
-	 //     	}
-	 //  	});
-
-
-	//   });
+		db.serialize(function() {
+		var stmt = db.prepare("INSERT INTO messagetable VALUES (?, ?, ?)");
+		     stmt.run( msg_obj.msg_contents, msg_obj.username, time_moment);
+		 stmt.finalize();
+		});
 	 
 
 	});
