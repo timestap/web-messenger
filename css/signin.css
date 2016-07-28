@@ -1,7 +1,19 @@
 body {
-  padding-top: 40px;
+  padding-top: 200px;
   padding-bottom: 40px;
+  background-color: #104759; 
+  position: relative;
+  top:50%;
+}
+
+.signin{
   background-color: #eee;
+  overflow: hidden;
+  top:50%;
+  border-radius: 15px;
+  padding: 15px;
+  position: relative;
+  vertical-align: middle;
 }
 
 .form-signin {

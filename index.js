@@ -65,6 +65,10 @@ app.get('/css/chat.css', function(req, res){
 	res.sendFile(__dirname + '/css/chat.css');
 });
 
+app.get('/css/signin.css', function(req, res){
+	res.sendFile(__dirname + '/css/signin.css');
+});
+
 
 io.on('connection', function(socket){
 	console.log('a user connected');
