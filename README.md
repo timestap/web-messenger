@@ -1,6 +1,6 @@
 # web-messenger
 
-CMU-FSE 
+CMU-FSE (This is the the pre-course assignment for the Foundations of Software Engineering at CMU)
 Kevin Zhang
 
 
